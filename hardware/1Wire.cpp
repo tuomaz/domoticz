@@ -300,7 +300,7 @@ void C1Wire::PollSensors()
 				{
 					ReportTemperatureHumidity(device.devid, temperature, m_system->GetHumidity(device));
 				}
-				ReportPressure(device.devid,m_system->GetPressure(device));
+				ReportBarometricPressure(device.devid,m_system->GetPressure(device));
 				break;
 			}
 
@@ -500,6 +500,17 @@ void C1Wire::ReportPressure(const std::string& deviceId, const float pressure)
 
 	int lID = (deviceIdByteArray[0] << 24) + (deviceIdByteArray[1] << 16) + (deviceIdByteArray[2] << 8) + deviceIdByteArray[3];
 	SendPressureSensor(0, lID, 255, pressure, "Pressure");
+}
+
+void C1Wire::ReportBarometricPressure(const std::string& deviceId, const float pressure)
+{
+        if (pressure == -1000.0)
+                return;
+        unsigned char deviceIdByteArray[DEVICE_ID_SIZE] = { 0 };
+        DeviceIdToByteArray(deviceId, deviceIdByteArray);
+
+        int lID = (deviceIdByteArray[0] << 24) + (deviceIdByteArray[1] << 16) + (deviceIdByteArray[2] << 8) + deviceIdByteArray[3];
+        SendBaroSensor(0, lID, 255, pressure, -1, "Barometric pressure");
 }
 
 void C1Wire::ReportTemperatureHumidity(const std::string& deviceId, const float temperature, const float humidity)
